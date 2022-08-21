@@ -8,68 +8,98 @@ class Fraction
 	int den = 0;
 	int integer = 0;
 public:
-	Fraction(){}
+	Fraction() {}
 	Fraction(int nom, int den) : nom(nom), den(den) {}
 	Fraction(int integer, int nom, int den) : integer(integer), nom(nom), den(den){}
-	Fraction (Fraction& other) :integer(other.integer), nom(other.nom), den(other.den) {}
+	~Fraction(){}
 	
-
-	Fraction operator=(Fraction& other);
-	Fraction operator+(Fraction& other);
-	Fraction operator-(Fraction& other);
-	Fraction operator*(Fraction& other);
-	Fraction operator/(Fraction& other);
-	Fraction operator+=(Fraction& other);
-	Fraction operator-=(Fraction& other);
-	void transformation(Fraction& other);
-	void transformProperFract(Fraction& other);
-	void rounding(Fraction& other);
+	Fraction(Fraction& other);
+	Fraction operator()(Fraction& other);
+	Fraction operator+(const Fraction& other);
+	Fraction operator-(const Fraction& other);
+	Fraction operator*(const Fraction& other);
+	Fraction operator*=(const Fraction& other);
+	Fraction operator/(const Fraction& other);
+	Fraction operator/=(const Fraction& other);
+	Fraction operator+=(const Fraction& other);
+	Fraction operator-=(const Fraction& other);
+	Fraction operator++();
+	Fraction operator++(int);
+	Fraction operator--();
+	Fraction operator--(int);
+	Fraction operator%(int s);
+	bool operator>(Fraction& other);
+	bool operator<(Fraction& other);
+	bool operator>=(Fraction& other);
+	bool operator<=(Fraction& other);
+	
 	void print();
+
+	friend void transformation(Fraction& other);
+	friend void transformProperFract(Fraction& other);
+	friend void rounding(Fraction& other);
 };
 
-Fraction Fraction::operator=(Fraction& other)
+Fraction::Fraction(Fraction& other)
 {
 	this->nom = other.nom;
 	this->den = other.den;
+	this->integer = other.integer;
+}
+
+Fraction Fraction::operator()(Fraction& other)
+{
+	this->nom = other.nom;
+	this->den = other.den;
+	this->integer = other.integer;
 	return *this;
 }
 
-Fraction Fraction::operator+(Fraction& other)
+Fraction Fraction::operator+(const Fraction& other)
 {
-	transformation(*this);
-	transformation(other);
+	Fraction temp;
 	if (this->den == other.den || (this->den == 0 || other.den == 0))
 	{
-		this->nom = this->nom + other.nom;
+		temp.nom = this->nom + other.nom;
 		if (this->den == 0 || other.den == 0)
-			this->den = this->den + other.den;
+			temp.den = this->den + other.den;
 	}
 	else
 	{
-		this->nom = this->nom * other.den + other.nom * this->den;
-		this->den = this->den * other.den;
+		temp.nom = this->nom * other.den + other.nom * this->den;
+		temp.den = this->den * other.den;
 	}
-	rounding(*this);
-	transformProperFract(*this);
-	return *this;
+	rounding(temp);
+	return temp;
 }
 
-Fraction Fraction::operator-(Fraction& other)
+Fraction Fraction::operator-(const Fraction& other)
 {
+	Fraction temp;
 	if (this->den == other.den)
 	{
-		this->nom -= other.nom;
-		this->den = other.den;
+		temp.nom =this->nom - other.nom;
+		temp.den = other.den;
 	}
 	else
 	{
-		this->nom = this->nom * other.den - other.nom * this->den;
-		this->den *= other.den;
+		temp.nom = this->nom * other.den - other.nom * this->den;
+		temp.den = this->den * other.den;
 	}
-	return *this;
+	rounding(temp);
+	return temp;
 }
 
-Fraction Fraction::operator*(Fraction& other)
+Fraction Fraction::operator*(const Fraction& other)
+{
+	Fraction temp;
+	temp.nom =this->nom * other.nom;
+	temp.den = this->den * other.den;
+	rounding(temp);
+	return temp;
+}
+
+Fraction Fraction::operator*=(const Fraction& other)
 {
 	this->nom *= other.nom;
 	this->den *= other.den;
@@ -77,17 +107,62 @@ Fraction Fraction::operator*(Fraction& other)
 	return *this;
 }
 
-Fraction Fraction::operator/(Fraction& other)
+Fraction Fraction::operator/(const Fraction& other)
 {
-	this->nom *= other.den;
-	this->den *= other.nom;
+	Fraction temp;
+	temp.nom = this->nom * other.den;
+	temp.den = this->den * other.nom;
+	rounding(temp);
+	return temp;
+}
+
+Fraction Fraction::operator++()
+{
+	this->nom += this->den;
+	return *this;
+}
+
+Fraction Fraction::operator++(int)
+{
+	Fraction temp;
+	temp(*this);
+	this->nom += this->den;
+	return temp;
+}
+
+Fraction Fraction::operator--()
+{
+	this->nom -= this->den;
+	return *this;
+}
+
+Fraction Fraction::operator--(int)
+{
+	Fraction temp;
+	temp(*this);
+	this->nom -= this->den;
+	return temp;
+}
+
+Fraction Fraction::operator%(int s)
+{
+	Fraction temp;
+	temp.nom = this->nom % s;
+	temp.den = this->den % s;
+	rounding(temp);
+	return temp;
+}
+
+Fraction Fraction::operator/=(const Fraction& other)
+{
+	this->nom = this->nom * other.den;
+	this->den = this->den * other.nom;
 	rounding(*this);
 	return *this;
 }
 
-Fraction Fraction::operator+=(Fraction& other)
+Fraction Fraction::operator+=(const Fraction& other)
 {
-
 	if (this->den == other.den || (this->den == 0 || other.den == 0))
 	{
 		this->nom += other.nom;
@@ -103,38 +178,33 @@ Fraction Fraction::operator+=(Fraction& other)
 	return *this;
 }
 
-void Fraction::transformation(Fraction& other)
+bool Fraction::operator>(Fraction& other)
 {
-	if (other.integer)
-	{
-		other.nom =(other.nom * other.integer) + other.integer * other.den;
-		other.integer = 0;
-	}
+	return (float(this->nom)/float(this->den)) > (float(other.nom)/float(other.den));
 }
 
-void Fraction::transformProperFract(Fraction& other)
+bool Fraction::operator<(Fraction& other)
 {
-	if (other.nom > other.den)
-		other.integer = other.nom / other.den;
-	other.nom -= other.integer * other.den;
+	return !((float(this->nom) / float(this->den)) > (float(other.nom) / float(other.den)));
 }
 
-void Fraction::rounding(Fraction& other)
+bool Fraction::operator>=(Fraction& other)
 {
-	for (int i = 1; i < other.den; i++)
-	{
-		if (other.nom % i == 0 && other.den % i == 0)
-		{
-			this->nom = other.nom / i;
-			this->den = other.den / i;
-		}
-	}
+	return (float(this->nom) / float(this->den)) >= (float(other.nom) / float(other.den));
+}
+
+bool Fraction::operator<=(Fraction& other)
+{
+	return !((float(this->nom) / float(this->den)) >= (float(other.nom) / float(other.den)));
 }
 
 void Fraction::print()
 {
-	if (this->integer != 0)
+	transformProperFract(*this);
+	if (this->integer != 0 && this->nom != 0)
 		cout << integer << "," << nom << "/" << den << endl;
+	else if (this->nom == 0)
+		cout << integer << endl;
 	else
 		cout << nom << "/" << den << endl;
  }
