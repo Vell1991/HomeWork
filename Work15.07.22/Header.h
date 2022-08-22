@@ -23,11 +23,17 @@ public:
 	Fraction operator/=(const Fraction& other);
 	Fraction operator+=(const Fraction& other);
 	Fraction operator-=(const Fraction& other);
+	const bool operator!();
+	operator bool();
+	const bool operator&&(Fraction& other);
+	const bool operator||(Fraction& other);
 	Fraction operator++();
 	Fraction operator++(int);
 	Fraction operator--();
 	Fraction operator--(int);
 	Fraction operator%(int s);
+	bool operator==(Fraction& other);
+	bool operator!=(Fraction& other);
 	bool operator>(Fraction& other);
 	bool operator<(Fraction& other);
 	bool operator>=(Fraction& other);
@@ -144,6 +150,29 @@ Fraction Fraction::operator--(int)
 	return temp;
 }
 
+const bool Fraction::operator!()
+{
+	return !this;
+}
+
+Fraction::operator bool()
+{
+	if (this->integer != 0 || (this->nom != 0 && this->den != 0))
+		return true;
+	else
+		return false;
+}
+
+const bool Fraction::operator&&(Fraction& other)
+{
+	return *this && other;
+}
+
+const bool Fraction::operator||(Fraction& other)
+{
+	return *this || other;
+}
+
 Fraction Fraction::operator%(int s)
 {
 	Fraction temp;
@@ -176,6 +205,16 @@ Fraction Fraction::operator+=(const Fraction& other)
 	}
 	rounding(*this);
 	return *this;
+}
+
+bool Fraction::operator==(Fraction& other)
+{
+	return this->integer == other.integer && this->nom == other.nom && this->den == other.den;
+}
+
+bool Fraction::operator!=(Fraction& other)
+{
+	return !(this->integer == other.integer && this->nom == other.nom && this->den == other.den);
 }
 
 bool Fraction::operator>(Fraction& other)

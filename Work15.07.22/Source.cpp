@@ -54,6 +54,16 @@ int main()
 	transformation(f3);
 	f3--;
 	f3.print();
+	if (f3 != f1 && f3 != f2)
+		cout << true << endl;
+	else
+		cout << false << endl;
+	Fraction f4;
+
+	if (!f4)
+		cout << true << endl;
+	else
+		cout << false << endl;
 
 	system("pause");
 	return 0;
